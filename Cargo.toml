@@ -1,0 +1,32 @@
+[package]
+name = "stellar-lighthorizon"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+static_assertions = "1.1.0"
+stellar-xdr = { git = "https://github.com/stellar/rs-stellar-xdr", rev = "1fa7c3ebdefd6c78719ede6b294aa64e13077d2a", default-features = false }
+stellar-contract-host = { git = "https://github.com/stellar/rs-stellar-contract-env", rev = "1b6c8c1b093d6fdc9d49b1637713e62dd959dde9", default-features = true }
+im-rc = { version = "15.0.0", optional = true }
+num-bigint = { version = "0.4", optional = true }
+num-rational = { version = "0.4", optional = true }
+tokio = { version = "1", features = ["full"] }
+warp = "0.3"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_derive = "1.0"
+
+[[bin]]
+bench = false
+path = "src/main.rs"
+name = "lighthorizon"
+
+[features]
+default = ["host_context"]
+host_context = ["stellar-xdr/std", "im-rc", "num-bigint", "num-rational"]
+
+[target.debug.features]
+default = ["host_context"]
+
+[target.release.features]
+default = ["host_context"]
