@@ -4,9 +4,12 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
+base64 = "0.13.0"
 static_assertions = "1.1.0"
-stellar-xdr = { git = "https://github.com/stellar/rs-stellar-xdr", rev = "1fa7c3ebdefd6c78719ede6b294aa64e13077d2a", default-features = false }
-stellar-contract-host = { git = "https://github.com/stellar/rs-stellar-contract-env", rev = "1b6c8c1b093d6fdc9d49b1637713e62dd959dde9", default-features = true }
+stellar-xdr = { git = "https://github.com/stellar/rs-stellar-xdr", rev = "2c692bc179be20bd00ea8df561ee133112011847" }
+stellar-contract-env-host = { git = "https://github.com/stellar/rs-stellar-contract-env", rev = "bde44d2f80fd3a75f68faf5e7874bc18a88355da", features = [
+    "vm",
+] }
 im-rc = { version = "15.0.0", optional = true }
 num-bigint = { version = "0.4", optional = true }
 num-rational = { version = "0.4", optional = true }

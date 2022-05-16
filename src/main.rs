@@ -1,18 +1,20 @@
+mod contract;
 use std::error;
 use std::process;
 use std::rc::Rc;
+use base64;
 use serde::{Serialize, Deserialize};
 use serde::{Serializer, Deserializer};
 use serde_json::{Value, json};
 use serde::de::Error;
-use stellar_contract_host::{HostContext};
+use stellar_xdr::{WriteXdr, ScVec, ScVal, VecM};
 use warp::Filter;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "method", content = "params")]
 #[serde(rename_all = "snake_case")]
 enum Requests {
-    Call,
+    Call { func: String, xdr: String },
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -74,6 +76,9 @@ impl<'de, N, R> Deserialize<'de> for JsonRpc<N, R>
 
 type Request = JsonRpc<Notifications, Requests>;
 
+// factorial.ts
+const wasm: &'static str = "AGFzbQEAAAABFwRgAAF+YAF+AX5gA35+fgF+YAJ+fgF+AnwGA2Vudglsb2dfdmFsdWUAAQNlbnYHbWFwX25ldwAAA2VudgdtYXBfcHV0AAIDZW52B21hcF9nZXQAAwNlbnYWZ2V0X2N1cnJlbnRfbGVkZ2VyX251bQAAA2Vudh1nZXRfY3VycmVudF9sZWRnZXJfY2xvc2VfdGltZQAAAwIBAQUDAQAAB3YICWxvZ192YWx1ZQAAB21hcF9uZXcAAQdtYXBfcHV0AAIHbWFwX2dldAADFmdldF9jdXJyZW50X2xlZGdlcl9udW0ABB1nZXRfY3VycmVudF9sZWRnZXJfY2xvc2VfdGltZQAFBmludm9rZQAGBm1lbW9yeQIACi0BKwECf0EBIQJBASEBA0AgACABrFkEQCABIAJsIQIgAUEBaiEBDAELCyACrAs=";
+
 #[tokio::main]
 async fn main() {
     // let context = HostContext::default();
@@ -84,9 +89,28 @@ async fn main() {
     let call = warp::post()
         .and(warp::path("rpc"))
         .and(warp::body::json())
-        .map(|request: Request|
-            format!("{:?}", request)
-        );
+        .map(|request: Requests| match request {
+            Requests::Call { func, xdr } => {
+                let wasmBytes = base64::decode(wasm);
+                let args = base64::decode(xdr);
+                // let mut v = Vec::<ScVal>::new();
+                // v.push(ScVal::ScvI32(1));
+                // let v: ScVec = ScVec(v.try_into().unwrap());
+                // format!("xdr: {:?}", v.to_xdr_base64())
+                match (wasmBytes, args) {
+                    (Ok(w), Ok(a)) => {
+                        let result = contract::invoke_contract(&w, &func, &a);
+                        format!("Result: {:?}", result)
+                    }
+                    (Err(e), _) => {
+                        format!("Failed to parse wasm: {:?}", e)
+                    }
+                    (_, Err(e)) => {
+                        format!("Failed to parse args: {:?}", e)
+                    }
+                }
+            }
+        });
 
     warp::serve(call)
         .run(([127, 0, 0, 1], 3030))
