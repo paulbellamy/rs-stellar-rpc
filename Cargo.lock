@@ -868,7 +868,7 @@ dependencies = [
  "serde_json",
  "static_assertions",
  "stellar-contract-env-host",
- "stellar-xdr 0.0.0 (git+https://github.com/stellar/rs-stellar-xdr?rev=2c692bc179be20bd00ea8df561ee133112011847)",
+ "stellar-xdr 0.0.0 (git+https://github.com/stellar/rs-stellar-xdr?rev=a750509373b857bb44e4d8d15e660370dc1c64a9)",
  "tokio",
  "warp",
 ]
@@ -876,7 +876,7 @@ dependencies = [
 [[package]]
 name = "stellar-xdr"
 version = "0.0.0"
-source = "git+https://github.com/stellar/rs-stellar-xdr?rev=2c692bc179be20bd00ea8df561ee133112011847#2c692bc179be20bd00ea8df561ee133112011847"
+source = "git+https://github.com/stellar/rs-stellar-xdr?rev=a714d4ad#a714d4ad94a53270d9af1667632fc89f8849faea"
 dependencies = [
  "base64",
 ]
@@ -884,7 +884,7 @@ dependencies = [
 [[package]]
 name = "stellar-xdr"
 version = "0.0.0"
-source = "git+https://github.com/stellar/rs-stellar-xdr?rev=a714d4ad#a714d4ad94a53270d9af1667632fc89f8849faea"
+source = "git+https://github.com/stellar/rs-stellar-xdr?rev=a750509373b857bb44e4d8d15e660370dc1c64a9#a750509373b857bb44e4d8d15e660370dc1c64a9"
 dependencies = [
  "base64",
 ]
