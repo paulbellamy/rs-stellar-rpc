@@ -11,10 +11,12 @@ use stellar_contract_env_host::{
 /// requested function in the WASM, and serialize an SCVal back into a return
 /// value.
 pub fn invoke_contract(
-    wasm: &Vec<u8>,
-    func: &String,
-    args: &Vec<u8>,
+    wasmBase64: &str,
+    func: &str,
+    argsXdrBase64: &str,
 ) -> Result<Vec<u8>, Box<dyn Error>> {
+    let wasm = base64::decode(wasmBase64)?;
+    let args = base64::decode(argsXdrBase64)?;
     let arg_scvals = ScVec::read_xdr(&mut Cursor::new(args.as_slice()))?;
 
     let mut host = Host::default();

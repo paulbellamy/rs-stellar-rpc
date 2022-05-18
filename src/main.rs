@@ -14,7 +14,7 @@ use warp::Filter;
 #[serde(tag = "method", content = "params")]
 #[serde(rename_all = "snake_case")]
 enum Requests {
-    Call { func: String, xdr: String },
+    Call { contract: String, func: String, xdr: String },
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -90,21 +90,20 @@ async fn main() {
         .and(warp::path("rpc"))
         .and(warp::body::json())
         .map(|request: Requests| match request {
-            Requests::Call { func, xdr } => {
-                let wasmBytes = base64::decode(FACTORIAL_WASM);
-                let args = base64::decode(xdr);
+            Requests::Call { contract: _, func, xdr } => {
                 // let v: ScVec = vec![ScVal::ScvI32(1)].try_into();
                 // format!("xdr: {:?}", v.to_xdr_base64())
-                match (wasmBytes, args) {
-                    (Ok(w), Ok(a)) => {
-                        let result = contract::invoke_contract(&w, &func, &a);
-                        format!("Result: {:?}", result)
+
+                match contract::invoke_contract(&FACTORIAL_WASM, &func, &xdr) {
+                    Ok(result) => {
+                        json!({
+                            "result": result
+                        }).to_string()
                     }
-                    (Err(e), _) => {
-                        format!("Failed to parse wasm: {:?}", e)
-                    }
-                    (_, Err(e)) => {
-                        format!("Failed to parse args: {:?}", e)
+                    Err(err) => {
+                        json!({
+                            "error": err.to_string()
+                        }).to_string()
                     }
                 }
             }
