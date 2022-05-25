@@ -2,8 +2,8 @@ use std::io::Cursor;
 
 use std::error::Error;
 use stellar_contract_env_host::{
-    xdr::{ReadXDR, ScVec, WriteXDR},
-    Host, VM,
+    xdr::{Error as XdrError, ReadXdr, WriteXdr, ScVec, ScVal, VecM},
+    Host, Vm,
 };
 
 /// Deserialize an SCVec XDR object of SCVal arguments from the C++ side of the
@@ -20,9 +20,11 @@ pub fn invoke_contract(
     let arg_scvals = ScVec::read_xdr(&mut Cursor::new(args.as_slice()))?;
 
     let mut host = Host::default();
-    let vm = VM::new(&host, wasm.as_slice())?;
+    let vm = Vm::new(&host, wasm.as_slice())?;
 
     let res = vm.invoke_function(&mut host, func, &arg_scvals)?;
+    eprintln!("arg_scvals: {:?}", arg_scvals);
+    eprintln!("res: {:?}", res);
 
     let mut ret_xdr_buf: Vec<u8> = Vec::new();
     res.write_xdr(&mut Cursor::new(&mut ret_xdr_buf))?;

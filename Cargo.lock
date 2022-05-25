@@ -834,17 +834,17 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "stellar-contract-env-common"
 version = "0.0.0"
-source = "git+https://github.com/stellar/rs-stellar-contract-env?rev=bde44d2f80fd3a75f68faf5e7874bc18a88355da#bde44d2f80fd3a75f68faf5e7874bc18a88355da"
+source = "git+https://github.com/stellar/rs-stellar-contract-env?rev=b17ef082#b17ef082fc4960bb21cb1cc2d1c43b4b512dd770"
 dependencies = [
  "static_assertions",
- "stellar-xdr 0.0.0 (git+https://github.com/stellar/rs-stellar-xdr?rev=a714d4ad)",
+ "stellar-xdr 0.0.0 (git+https://github.com/stellar/rs-stellar-xdr?rev=378b1a5)",
  "wasmi",
 ]
 
 [[package]]
 name = "stellar-contract-env-host"
 version = "0.0.0"
-source = "git+https://github.com/stellar/rs-stellar-contract-env?rev=bde44d2f80fd3a75f68faf5e7874bc18a88355da#bde44d2f80fd3a75f68faf5e7874bc18a88355da"
+source = "git+https://github.com/stellar/rs-stellar-contract-env?rev=b17ef082#b17ef082fc4960bb21cb1cc2d1c43b4b512dd770"
 dependencies = [
  "im-rc",
  "num-bigint",
@@ -868,7 +868,7 @@ dependencies = [
  "serde_json",
  "static_assertions",
  "stellar-contract-env-host",
- "stellar-xdr 0.0.0 (git+https://github.com/stellar/rs-stellar-xdr?rev=a750509373b857bb44e4d8d15e660370dc1c64a9)",
+ "stellar-xdr 0.0.0 (git+https://github.com/stellar/rs-stellar-xdr?rev=378b1a5ace92e1dc5612a3556ae859f6d6b6de37)",
  "tokio",
  "warp",
 ]
@@ -876,7 +876,7 @@ dependencies = [
 [[package]]
 name = "stellar-xdr"
 version = "0.0.0"
-source = "git+https://github.com/stellar/rs-stellar-xdr?rev=a714d4ad#a714d4ad94a53270d9af1667632fc89f8849faea"
+source = "git+https://github.com/stellar/rs-stellar-xdr?rev=378b1a5#378b1a5ace92e1dc5612a3556ae859f6d6b6de37"
 dependencies = [
  "base64",
 ]
@@ -884,7 +884,7 @@ dependencies = [
 [[package]]
 name = "stellar-xdr"
 version = "0.0.0"
-source = "git+https://github.com/stellar/rs-stellar-xdr?rev=a750509373b857bb44e4d8d15e660370dc1c64a9#a750509373b857bb44e4d8d15e660370dc1c64a9"
+source = "git+https://github.com/stellar/rs-stellar-xdr?rev=378b1a5ace92e1dc5612a3556ae859f6d6b6de37#378b1a5ace92e1dc5612a3556ae859f6d6b6de37"
 dependencies = [
  "base64",
 ]

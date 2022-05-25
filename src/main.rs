@@ -76,8 +76,11 @@ impl<'de, N, R> Deserialize<'de> for JsonRpc<N, R>
 
 type Request = JsonRpc<Notifications, Requests>;
 
-// factorial.ts
-const FACTORIAL_WASM: &'static str = "AGFzbQEAAAABFwRgAAF+YAF+AX5gA35+fgF+YAJ+fgF+AnwGA2Vudglsb2dfdmFsdWUAAQNlbnYHbWFwX25ldwAAA2VudgdtYXBfcHV0AAIDZW52B21hcF9nZXQAAwNlbnYWZ2V0X2N1cnJlbnRfbGVkZ2VyX251bQAAA2Vudh1nZXRfY3VycmVudF9sZWRnZXJfY2xvc2VfdGltZQAAAwIBAQUDAQAAB3YICWxvZ192YWx1ZQAAB21hcF9uZXcAAQdtYXBfcHV0AAIHbWFwX2dldAADFmdldF9jdXJyZW50X2xlZGdlcl9udW0ABB1nZXRfY3VycmVudF9sZWRnZXJfY2xvc2VfdGltZQAFBmludm9rZQAGBm1lbW9yeQIACi0BKwECf0EBIQJBASEBA0AgACABrFkEQCABIAJsIQIgAUEBaiEBDAELCyACrAs=";
+// args.zig
+const ARGS_WASM: &'static str = "AGFzbQEAAAABBgFgAX4BfgIRAQNlbnYJbG9nX3ZhbHVlAAADAgEABQMBAAEGCAF/AUGAgAQLBxMCBm1lbW9yeQIABmludm9rZQABCg8BDQAgABCAgICAABogAAs=";
+
+// factorial.zig
+const FACTORIAL_WASM: &'static str = "AGFzbQEAAAABBgFgAX4BfgMCAQAFAwEAAQYIAX8BQYCABAsHEwIGbWVtb3J5AgAGaW52b2tlAAAKNwE1AQJ+QgAhASAAQgAgAEIAVRshAkIBIQACQANAIAIgAVENASAAIAFCAXwiAX4hAAwACwsgAAs=";
 
 #[tokio::main]
 async fn main() {
@@ -91,13 +94,13 @@ async fn main() {
         .and(warp::body::json())
         .map(|request: Requests| match request {
             Requests::Call { contract: _, func, xdr } => {
-                // let v: ScVec = vec![ScVal::ScvI32(1)].try_into();
+                // let v: ScVec = vec![ScVal::I32(1)].try_into().unwrap();
                 // format!("xdr: {:?}", v.to_xdr_base64())
 
                 match contract::invoke_contract(&FACTORIAL_WASM, &func, &xdr) {
-                    Ok(result) => {
+                    Ok(result_xdr) => {
                         json!({
-                            "result": result
+                            "result": base64::encode(result_xdr)
                         }).to_string()
                     }
                     Err(err) => {
@@ -110,7 +113,7 @@ async fn main() {
         });
 
     warp::serve(call)
-        .run(([127, 0, 0, 1], 3000))
+        .run(([127, 0, 0, 1], 8080))
         .await;
 }
 
