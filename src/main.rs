@@ -14,7 +14,7 @@ use warp::Filter;
 #[serde(tag = "method", content = "params")]
 #[serde(rename_all = "snake_case")]
 enum Requests {
-    Call { contract: String, func: String, xdr: String, source_account: String },
+    Call { contract: String, func: String, xdr: String, source_account: Option<String> },
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -82,6 +82,10 @@ const ARGS_WASM: &'static str = "AGFzbQEAAAABBgFgAX4BfgIRAQNlbnYJbG9nX3ZhbHVlAAA
 // factorial.zig
 const FACTORIAL_WASM: &'static str = "AGFzbQEAAAABBgFgAX4BfgMCAQAFAwEAAQYIAX8BQYCABAsHEwIGbWVtb3J5AgAGaW52b2tlAAAKNwE1AQJ+QgAhASAAQgAgAEIAVRshAkIBIQACQANAIAIgAVENASAAIAFCAXwiAX4hAAwACwsgAAs=";
 
+// hello_world.zig
+const HELLO_WORLD_WASM: &'static str = "AGFzbQEAAAABBQFgAAF/AwIBAAUDAQACBggBfwFBgIAECwcRAgZtZW1vcnkCAARyZWFkAAAKCgEIAEGAgISAAAsLFAEAQYCABAsMaGVsbG8gd29ybGQA
+";
+
 #[tokio::main]
 async fn main() {
     // let context = HostContext::default();
@@ -93,7 +97,7 @@ async fn main() {
         .and(warp::path("rpc"))
         .and(warp::body::json())
         .map(|request: Requests| match request {
-            Requests::Call { contract: _, func, xdr } => {
+            Requests::Call { contract: _, func, xdr, source_account: _ } => {
                 // let v: ScVec = vec![ScVal::I32(1)].try_into().unwrap();
                 // format!("xdr: {:?}", v.to_xdr_base64())
 
