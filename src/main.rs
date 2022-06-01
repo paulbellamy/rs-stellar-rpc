@@ -1,12 +1,13 @@
 mod contract;
-use std::error;
+mod txmeta;
+use txmeta::LedgerBackend;
+use std::error::Error;
 use std::process;
 use std::rc::Rc;
 use base64;
 use serde::{Serialize, Deserialize};
 use serde::{Serializer, Deserializer};
 use serde_json::{Value, json};
-use serde::de::Error;
 use stellar_xdr::{WriteXdr, ScVec, ScVal, VecM};
 use warp::Filter;
 
@@ -60,14 +61,14 @@ impl<'de, N, R> Deserialize<'de> for JsonRpc<N, R>
         }
 
         let v = Value::deserialize(deserializer)?;
-        let helper = IdHelper::deserialize(&v).map_err(Error::custom)?;
+        let helper = IdHelper::deserialize(&v).map_err(serde::de::Error::custom)?;
         match helper.id {
             Some(id) => {
-                let r = R::deserialize(v).map_err(Error::custom)?;
+                let r = R::deserialize(v).map_err(serde::de::Error::custom)?;
                 Ok(JsonRpc::Request(id, r))
             }
             None => {
-                let n = N::deserialize(v).map_err(Error::custom)?;
+                let n = N::deserialize(v).map_err(serde::de::Error::custom)?;
                 Ok(JsonRpc::Notification(n))
             }
         }
@@ -86,6 +87,23 @@ const FACTORIAL_WASM: &'static str = "AGFzbQEAAAABBgFgAX4BfgMCAQAFAwEAAQYIAX8BQY
 const HELLO_WORLD_WASM: &'static str = "AGFzbQEAAAABBQFgAAF/AwIBAAUDAQACBggBfwFBgIAECwcRAgZtZW1vcnkCAARyZWFkAAAKCgEIAEGAgISAAAsLFAEAQYCABAsMaGVsbG8gd29ybGQA
 ";
 
+fn get_state() -> Result<(), Box<dyn Error>> {
+    // TODO: Stream this later, so we don't have to do it on-the-fly.
+    // Get the current state so we know the contract data, and can populate env.
+    let backend = txmeta::FSLedgerBackend::default();
+    // Get the latest checkpoint
+    let latest = backend.get_latest()?;
+    let checkpoint = latest/64; // +1 here?
+    let replayFrom = checkpoint*64;
+    let state = backend.get_checkpoint(checkpoint)?;
+    // Get all ledgers after that, and replay them on top.
+    for seq in replayFrom..(latest+1) {
+        let ledger = backend.get_ledger(seq)?;
+        // TODO: Replay the ledger into some in-memory state bucket
+    };
+    Ok(())
+}
+
 #[tokio::main]
 async fn main() {
     // let context = HostContext::default();
@@ -98,9 +116,12 @@ async fn main() {
         .and(warp::body::json())
         .map(|request: Requests| match request {
             Requests::Call { contract: _, func, xdr, source_account: _ } => {
+                get_state();
+
                 // let v: ScVec = vec![ScVal::I32(1)].try_into().unwrap();
                 // format!("xdr: {:?}", v.to_xdr_base64())
 
+                // Invoke the contract
                 match contract::invoke_contract(&FACTORIAL_WASM, &func, &xdr) {
                     Ok(result_xdr) => {
                         json!({
