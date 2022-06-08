@@ -15,7 +15,7 @@ use warp::Filter;
 #[serde(tag = "method", content = "params")]
 #[serde(rename_all = "snake_case")]
 enum Requests {
-    Call { contract: String, func: String, xdr: String, source_account: Option<String> },
+    Call { contract: String, func: String, xdr: Option<String>, source_account: Option<String> },
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -84,8 +84,10 @@ const ARGS_WASM: &'static str = "AGFzbQEAAAABBgFgAX4BfgIRAQNlbnYJbG9nX3ZhbHVlAAA
 const FACTORIAL_WASM: &'static str = "AGFzbQEAAAABBgFgAX4BfgMCAQAFAwEAAQYIAX8BQYCABAsHEwIGbWVtb3J5AgAGaW52b2tlAAAKNwE1AQJ+QgAhASAAQgAgAEIAVRshAkIBIQACQANAIAIgAVENASAAIAFCAXwiAX4hAAwACwsgAAs=";
 
 // hello_world.zig
-const HELLO_WORLD_WASM: &'static str = "AGFzbQEAAAABBQFgAAF/AwIBAAUDAQACBggBfwFBgIAECwcRAgZtZW1vcnkCAARyZWFkAAAKCgEIAEGAgISAAAsLFAEAQYCABAsMaGVsbG8gd29ybGQA
-";
+const HELLO_WORLD_WASM: &'static str = "AGFzbQEAAAABBQFgAAF/AwIBAAUDAQACBggBfwFBgIAECwcRAgZtZW1vcnkCAARyZWFkAAAKCgEIAEGAgISAAAsLFAEAQYCABAsMaGVsbG8gd29ybGQA";
+
+// pixel nft example
+const PIXEL_NFT_WASM: &'static str = "AGFzbQEAAAABDgNgAAF+YAF/AGABfwF+AwUEAAABAgUDAQARBhkDfwFBgIDAAAt/AEG8gcAAC38AQcCBwAALBzUFBm1lbW9yeQIABXBpeGVsAAAFb3duZXIAAQpfX2RhdGFfZW5kAwELX19oZWFwX2Jhc2UDAgqYAwQJAELxv+u+lQEL+QICA38CfgJ+IwBBEGsiACQAA0ACQAJAIAACfyACQQpGBEAgAEEIaiAEQgSGQgmENwMAQQAMAQsgAkEKRwRAQgEhAyACQYCAQGstAAAiAUHfAEYNAiABrSEDAkACQCABQTBrQf8BcUEKTwRAIAFBwQBrQf8BcUEaSQ0BIAFB4QBrQf8BcUEaSQ0CIABBATYCBCAAQQhqIAE2AgBBAQwECyADQi59IQMMBAsgA0I1fSEDDAMLIANCO30hAwwCCyAAQQA2AgQgAEEIakEKNgIAQQELNgIADAELIAJBAWohAiADIARCBoaEIQQMAQsLIAAoAgBFBEAgACkDCCAAQRBqJAAMAQsjAEEgayIAJAAgAEEUakEANgIAIABBrIHAADYCECAAQgE3AgQgAEEONgIcIABBjIHAADYCGCAAIABBGGo2AgAjAEEgayIBJAAgAUEBOgAYIAFBnIHAADYCFCABIAA2AhAgAUGsgcAANgIMIAFBrIHAADYCCAALCwMAAQsNAELX1o7QiJnYj7V/CwvDAQEAQYCAwAALuQFHQktMTVFWTkNSL1VzZXJzL3BhdWxiZWxsYW15Ly5jYXJnby9naXQvY2hlY2tvdXRzL3JzLXN0ZWxsYXItY29udHJhY3QtZW52LWE3NDU5OGJlZmVmNTk3OGQvNmIzNmZkNS9zdGVsbGFyLWNvbnRyYWN0LWVudi1jb21tb24vc3JjL3N5bWJvbC5yc2V4cGxpY2l0IHBhbmljAAAKABAAggAAAFoAAAAXAAAAAQAAAAAAAAABAAAAAg==";
 
 fn get_state() -> Result<(), Box<dyn Error>> {
     // TODO: Stream this later, so we don't have to do it on-the-fly.
@@ -115,14 +117,14 @@ async fn main() {
         .and(warp::path("rpc"))
         .and(warp::body::json())
         .map(|request: Requests| match request {
-            Requests::Call { contract: _, func, xdr, source_account: _ } => {
-                get_state();
+            Requests::Call { contract, func, xdr, source_account: _ } => {
+                // get_state();
 
                 // let v: ScVec = vec![ScVal::I32(1)].try_into().unwrap();
                 // format!("xdr: {:?}", v.to_xdr_base64())
 
                 // Invoke the contract
-                match contract::invoke_contract(&FACTORIAL_WASM, &func, &xdr) {
+                match contract::invoke_contract(&contract, &PIXEL_NFT_WASM, &func, &xdr) {
                     Ok(result_xdr) => {
                         json!({
                             "result": base64::encode(result_xdr)
