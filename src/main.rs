@@ -15,7 +15,7 @@ use warp::Filter;
 #[serde(tag = "method", content = "params")]
 #[serde(rename_all = "snake_case")]
 enum Requests {
-    Call { contract: String, func: String, xdr: Option<String>, source_account: Option<String> },
+    Call { contract: String, func: String, xdr: String, source_account: Option<String> },
 }
 
 #[derive(Serialize, Deserialize, Debug)]

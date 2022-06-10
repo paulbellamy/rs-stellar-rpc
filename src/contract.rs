@@ -11,20 +11,25 @@ use stellar_contract_env_host::{
 /// requested function in the WASM, and serialize an SCVal back into a return
 /// value.
 pub fn invoke_contract(
-    contractId: &str,
-    wasmBase64: &str,
+    contract_id_base64: &str,
+    wasm_base64: &str,
     func: &str,
-    argsXdrBase64: &Option<String>,
+    args_xdr_base64: &str,
 ) -> Result<Vec<u8>, Box<dyn Error>> {
-    let contractId: ContractId = ContractId(Hash::read_xdr(&mut Cursor::new(base64::decode(wasmBase64)?.as_slice()))?);
-    let wasm = base64::decode(wasmBase64)?;
-    let args: ScVec = match argsXdrBase64 {
-        Some(a) => ScVec::read_xdr(&mut Cursor::new(base64::decode(a)?.as_slice()))?,
-        None => vec![].try_into()?,
+    let contract_id: ContractId = ContractId(Hash::read_xdr(&mut Cursor::new(base64::decode(contract_id_base64)?.as_slice()))?);
+    let wasm = base64::decode(wasm_base64)?;
+    let args: ScVec = if args_xdr_base64.len() > 0 {
+        ScVec::read_xdr(
+            &mut Cursor::new(
+                base64::decode(args_xdr_base64)?.as_slice()
+            )
+        )?
+    } else {
+        vec![].try_into()?
     };
 
     let mut host = Host::default();
-    let vm = Vm::new(&host, contractId, wasm.as_slice())?;
+    let vm = Vm::new(&host, contract_id, wasm.as_slice())?;
 
     let res = vm.invoke_function(&mut host, func, &args)?;
     eprintln!("args: {:?}", args);
